@@ -1,104 +1,53 @@
 
 source('dependencies.R')
-# load all packages
-#lapply(required_packages, require, character.only = TRUE)
 
 # DATA TRANSFORMATION AND NEW VARIABLES -----------------------------------
-functions_names<- list.files("./data/functions", full.names = T )
-lapply(functions_names, source)
-
 ############################################################
 
 
 library(igraph)
 library(prodlim)
-
+library(openxlsx)
 library(foreach)
 library(doParallel)
-
-
-source("./Functions/F07_search_exact_structures_resistance.R")
-source("./functions/F19_calculate_path_value.R")
-source("./functions/F04_plot_subnetwork.R")
 source("./functions/F03_get_subnetwork.R")
 
 
-##  importing information
-# defining the nodes/proteins that should be considered in the search
-start_node <- 1
-end_node <- 25
 
+## importing the network
+table_tmp <- read.xlsx("Sample_pathway_database_single_file.xlsx")
+# browser()
+nodes<-unique(c(table_tmp[,1],table_tmp[,2]))
+links<-table_tmp
+net<-igraph::graph_from_data_frame(table_tmp, directed = TRUE, vertices = NULL)
 
 data_to_match <- 'SIGNOR_NETSCAN'
 topos_to_match_name <- 'topos_to_match'
 num_nodes <- 3
-nodesAreTargets <- c(1, 3)
 
-# E:\postdoc\resistance\resistance_Milad\Data\matching
-# load("E:/postdoc/resistance/resistance_Milad/Data/matching/SIGNOR_NETSCAN.RData")
-
-load(paste0("./Data/matching/", data_to_match, ".RData", collapse = ''))
-load(
-  paste0(
-    "./Data/matching/",
-    num_nodes,
-    "Nodes/",
-    topos_to_match_name,
-    ".RData",
-    collapse = ''
-  )
-)
-load(paste0("./Data/matching/", "Targets.RData", collapse = ''))
-load(paste0(
-  "./Data/topologies/",
-  num_nodes,
-  "Nodes/topos_all.RData",
-  collapse = ''
-))
-
-#topos_to_match<-topos8rob_to_match
-#save(topos_to_match,file='topos31_3Nodes.RData')
-
-
-# finding the targetable proteins in the proposed network
-
-targets     <- nodes[is.element(nodes, targets)]
-targets_num <- match(targets, nodes)
-
-# Modifying the variables style: changing "/" with ":"
-#save(topos_all, file="topologies_4Nodes_binary")
-links$ENTITYA <- gsub("/", ";", links$ENTITYA)
-links$ENTITYB <- gsub("/", ";", links$ENTITYB)
-links$ENTITYA <- gsub(",", ":", links$ENTITYA)
-links$ENTITYB <- gsub(",", ":", links$ENTITYB)
-nodes <- gsub("/", ";", nodes)
-nodes <- gsub(",", ":", nodes)
-targets <- gsub(",", ":", targets)
-targets <- gsub("/", ";", targets)
-vertex_attr(net)$name <- gsub("/", ";", vertex_attr(net)$name)
-vertex_attr(net)$name <- gsub(",", ":", vertex_attr(net)$name)
 
 
 
 ###################### creating the subnetwork based on the target protein
 
 pracma::tic()
-tmp <- list()
+
 
 # for (v in start_node:end_node) {
-  num <- which(nodes == "AKT2")
-  target_sub_graph = make_ego_graph(net,
-                                    order = 2,
-                                    nodes = "AKT2",
-                                    mode  = c("all"))
-  sub_graph_nodes <-
-    igraph::as_ids(igraph::V(target_sub_graph[[1]]))
-  links_sub<- as_edgelist (target_sub_graph[[1]])
-  links_subnetwork <- links[row.match(as.data.frame(links_sub),links[,1:2]),]
+# browser()
 
+target_sub_graph = net
+
+# browser()
+sub_graph_nodes <-
+  nodes
+links_sub<- links
+links_subnetwork <- links
+
+network = target_sub_graph
 
 subnodes = sub_graph_nodes
-network = target_sub_graph[[1]]
+sub_net = target_sub_graph
 links = links_subnetwork
 full = F
 
@@ -108,7 +57,7 @@ full = F
 
 subnodes<-unlist(subnodes)
 if(all(subnodes!='')){
-
+  
   sub_net <- get_subnetwork(subnodes,network)
   sub_net <- igraph::simplify(sub_net, remove.multiple = TRUE, remove.loops = F)
   
@@ -119,12 +68,6 @@ if(all(subnodes!='')){
     net <- visNetwork::toVisNetworkData(sub_net)
     
     net$edges$group<-links[prodlim::row.match(net$edges,links[,c(1,2)]) ,3]
-    #for (i in 1:nrow(net$edges)){
-    #net$edges$group[i] <- ifelse(net$edges$effect[i])
-    #as.numeric(get_link(sub_net,net$edges[i,1],net$edges[i,2],links))
-    
-    # }toVisNetworkData
-    
     
     net$edges$color<-ifelse(net$edges$group==1, "#62adcd","#df7f80")
     net$edges$arrows.to.type <- ifelse(net$edges$group==1,"arrow", "circle")

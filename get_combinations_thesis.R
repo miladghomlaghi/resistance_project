@@ -13,7 +13,7 @@ library(foreach)
 library(pracma)
 
 
-
+browser()
 
 # loading the tasrgetable drugs
 load(paste0("./Data/matching/", "Targets.RData", collapse = ""))
@@ -23,7 +23,6 @@ load(paste0("./Data/matching/", "Targets.RData", collapse = ""))
 # defining variables _________________________________________________________
 target <- "STAT3"
 Max_distance_from_target <- 5
-
 
 # number of nodes in the topology
 num_nodes <- 3

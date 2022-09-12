@@ -16,9 +16,6 @@ library(pracma)
 
 
 
-
-# loading the targetable drugs
-
 ###############################################################################
 
 # defining variables _________________________________________________________
@@ -26,9 +23,12 @@ library(pracma)
 chalenging_targets <- list()
 no_result_targets <- list()
 for (k in 1) {
-  #:length(targets)
+  
+  
+  # loading the targetable drugs
+  
   target <- "AKT2"#targets[[i]]
-  Max_distance_from_target <- 2
+  Max_distance_from_target <- 5
   print(k)
   
   # number of nodes in the topology
@@ -70,6 +70,7 @@ for (k in 1) {
   ###############################################################################
   
   ############### find the examples using the original algorithm ################
+  
   
   if (length(sub_nodes) > 2 & length(sub_nodes) < 200) {
     sub_name <- which(sub_nodes == proteins[user_node_num])
