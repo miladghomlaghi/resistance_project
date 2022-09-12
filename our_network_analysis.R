@@ -52,25 +52,20 @@ doParallel::registerDoParallel(numCores)
 challenging_targets <- list()
 no_result_targets <- list()
 
+## calculating the existence of links between any two proteins in this network
+path_proteins <-
+  protein_routes(proteins, links, network)
+
+all_proteins_permut_proteins <- path_proteins[[1]]
+all_proteins_permut_values   <- path_proteins[[2]]
+final_output <- list()
+
 for (k in 1:length(targets)) {
-  #:
-  
+
   # defining the target
   target <- network_targets[[k]]
   print(k)
-  
 
-  ## calculating the existence of links between any two proteins in this network
-  
-  path_proteins <-
-    protein_routes(proteins, links, network)
-  
-  all_proteins_permut_proteins <- path_proteins[[1]]
-  all_proteins_permut_values   <- path_proteins[[2]]
-  
-  
-  
-  browser()
   
   ###############################################################################
   
@@ -78,12 +73,13 @@ for (k in 1:length(targets)) {
   
   
   target_node_number <- which(proteins == target)
-  
-  for (i in 1:nrow(robust_topologies)) {
+  output <- list()
+  for (i in 1:nrow(robust_topologies[c(1,2),])) {
+    browser()
     
-    topology      <- robust_topologies[1, ]
+    topology      <- robust_topologies[i, ]
     user_position <- c(1)
-    output[k, i] <-
+    output[[i]] <-
       find_exact_structures(
         topology,
         target,
@@ -94,6 +90,7 @@ for (k in 1:length(targets)) {
       )
     
   }
+  final_output[[k]] <- output
 }
 
 
