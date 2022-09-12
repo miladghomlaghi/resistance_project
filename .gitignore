@@ -2,7 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-Data/*
+Data/databases_proteins
+Data/matching
+Data/network
+Data/topologies
+
 folder/*
 Strict/*
 R/*
