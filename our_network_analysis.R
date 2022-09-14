@@ -4,17 +4,19 @@ functions_names <- list.files("./data/functions", full.names = T)
 lapply(functions_names, source)
 
 # load("./Strict/Data/results_STAT3")
-source("./R/01_load_functions.R")
-source("./R/00_load_libraries.R")
-source("./Strict/F05_get_sign.R")
-source("./Strict/F06_get_link.R")
+# source("./R/01_load_functions.R")
+# source("./R/00_load_libraries.R")
+# source("./Strict/F05_get_sign.R")
+# source("./Strict/F06_get_link.R")
 library(dplyr)
 library(foreach)
 library(pracma)
 library(openxlsx)
+library(tidyr)
+
 load("robust_topologies.Rdata")
 
-browser()
+# browser()
 
 ## importing the network
 
@@ -60,7 +62,12 @@ all_proteins_permut_proteins <- path_proteins[[1]]
 all_proteins_permut_values   <- path_proteins[[2]]
 final_output <- list()
 
-for (k in 1:length(targets)) {
+# length(network_targets)
+final_output <- foreach::foreach(k = 1:length(network_targets), .combine = "cbind")%dopar% {
+  library(foreach)
+  library(tidyr)
+  
+# for (k in 1:length(network_targets) ) { # 
 
   # defining the target
   target <- network_targets[[k]]
@@ -74,8 +81,8 @@ for (k in 1:length(targets)) {
   
   target_node_number <- which(proteins == target)
   output <- list()
-  for (i in 1:nrow(robust_topologies[c(1,2),])) {
-    browser()
+  for (i in 1:nrow(robust_topologies[c(1),])) {
+    # browser()
     
     topology      <- robust_topologies[i, ]
     user_position <- c(1)
@@ -90,30 +97,24 @@ for (k in 1:length(targets)) {
       )
     
   }
-  final_output[[k]] <- output
+  # final_output[[network_targets[[k]]]] <- output
+  if (length(output)!=0) {
+    
+    save(
+      output,
+      file = paste0(
+        "Results/",
+        target,
+        ".RData",
+        collapse = ""
+      )
+    )
+  } 
+  list(output)
 }
 
 
 ################################################################################
 ################# Saving the results for each targetable node ##################
 
-if (exists("results")) {
-  results <- as.data.frame(results)
-  
-  print(k)
-  save(
-    results,
-    file = paste0(
-      "./Strict/Data/results_",
-      target,
-      "_",
-      Max_distance_from_target,
-      ".RData",
-      collapse = ""
-    )
-  )
-} else {
-  # browser()
-  print("No results")
-  no_result_targets[i] <- target
-}
+

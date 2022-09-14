@@ -13,6 +13,7 @@ find_exact_structures <-
     source("./data/functions/F21_non_user_interacting_node_potential_proteins.R")
     source("./data/functions/F22_valid_combinations_test.R")
     source("./data/functions/F23_unique_nodes_interactions.R")
+    library(parallel)
     
     
     
@@ -59,7 +60,7 @@ find_exact_structures <-
     
     #interaction matrix entered by the user
     interaction_matrix = matrix(topology, num_nodes, num_nodes)
-    browser()
+    # browser()
     
     tmp_user_node_related <- User_interacting_node_protein_finder(
       user_node_position,
@@ -79,7 +80,7 @@ find_exact_structures <-
       main_table <- tmp_user_node_related
     }
     
-    browser()
+    # browser()
     main_table <- main_table[!apply(main_table,1,function(x) any(duplicated(x))),]
     main_table <- main_table[,sort(names(main_table))]
     
@@ -115,16 +116,16 @@ find_exact_structures <-
     
     print("step 2 done: Non interacting nodes")
     
-    print(main_table)
+    # print(main_table)
     
-    main_table <-   Recheck_links(
-                                  interaction_matrix,
-                                  all_proteins_permut_values,
-                                  user_node_position,
-                                  node_range,
-                                  main_table,
-                                  network_proteins
-                                )
+    # main_table <-   Recheck_links(
+    #                               interaction_matrix,
+    #                               all_proteins_permut_values,
+    #                               user_node_position,
+    #                               node_range,
+    #                               main_table,
+    #                               network_proteins
+    #                             )
     # browser()
     
     ######### 1. choose one of the potential node links for each link 2. see
