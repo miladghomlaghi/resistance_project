@@ -11,7 +11,7 @@ User_interacting_node_protein_finder <-
     
     
     
-    browser()
+    # browser()
     
     
     # as a start, each node without connection with the users nodes takes all
