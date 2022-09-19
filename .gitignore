@@ -4,7 +4,6 @@
 .Ruserdata
 Data/databases_proteins
 Data/matching
-Data/network
 Data/topologies
 
 folder/*
