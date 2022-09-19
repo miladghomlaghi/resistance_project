@@ -64,8 +64,8 @@ for (v in start_node:end_node){
       #results <- foreach::foreach(r=5:10,.combine = "rbind") %dopar% {
       #source("./Strict/F05_get_sign.R")
       #source("./Strict/F06_get_link.R")
-      source("./Resistance/F05_get_sign.R")
-      source("./Resistance/F06_get_link.R")
+      source("./R/Strict/F05_get_sign.R")
+      source("./R/Strict/F06_get_link.R")
       
       #results <-matrix(rep("none",num_nodes),1,num_nodes)
       
@@ -76,7 +76,7 @@ for (v in start_node:end_node){
       combi[2]<-all_combi[r,][1]
       combi[3]<-all_combi[r,][2]
       combi <- matrix(combi,nrow=1,ncol = num_nodes)
-      combi_names<-near_nodes[combi]###############################################
+      combi_names<-near_nodes[combi]############################################
       topo <-rep(0,num_nodes^2)
       
       for (i in 1:nrow(combi_nodes)){
