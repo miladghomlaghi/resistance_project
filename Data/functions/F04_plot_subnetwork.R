@@ -2,7 +2,6 @@ plot_subnetwork<-function (subnodes, network,links, full=F){
 #  source("./data/functions/F05_get_sign.R")
  # source("./data/functions/F06_get_link.R")
   
-  
   subnodes<-unlist(subnodes)
  if(all(subnodes!='')){
    if(length(subnodes)>150){
@@ -11,7 +10,6 @@ plot_subnetwork<-function (subnodes, network,links, full=F){
    }
   sub_net <- get_subnetwork(subnodes,network)
   sub_net <- igraph::simplify(sub_net, remove.multiple = TRUE, remove.loops = F)
-
  
   if(igraph::gsize(sub_net)>0){
   
