@@ -1,13 +1,12 @@
 
+
 find_exact_structures <-
   function(topology,
            user_node,
            user_node_position,
            all_proteins_permut_proteins,
            all_proteins_permut_values,
-           nodes
-           
-           ) {
+           nodes) {
     source("./data/functions/F02_get_link_topology_extract.R")
     source("./data/functions/F20_user_interacting_node_potential_proteins.R")
     source("./data/functions/F21_non_user_interacting_node_potential_proteins.R")
@@ -21,11 +20,11 @@ find_exact_structures <-
     numCores <- bigstatsr::nb_cores()
     doParallel::registerDoParallel(cl <- makeCluster(numCores))
     
-    dist <- 5
+
     positions <- 1:length(topology)
     num_nodes <- sqrt(length(topology))
     node_range <- 1:num_nodes
-    network_proteins <- sort(nodes)
+    network_proteins <- nodes
     
     user_protein_number <- vector()
     
@@ -40,6 +39,7 @@ find_exact_structures <-
     node_index_permutation <-
       gtools::permutations(num_nodes, 2, 1:num_nodes, repeats.allowed = T)
     node_index_permutation <- node_index_permutation[, c(2, 1)]
+    
     # browser()
     # if (length(network_proteins) > 300) {
     #   network_proteins <-
@@ -50,12 +50,14 @@ find_exact_structures <-
     
     # path_proteins <-
     #   protein_routes(network_proteins, links, network)
-    # 
+    #
     # all_proteins_permut_proteins <- path_proteins[[1]]
     # all_proteins_permut_values   <- path_proteins[[2]]
     
     
+    ###################################################################################
     ############# extracting the potential networks based on the users inputs #######################
+    ## finding all possible networks based on the users input.
     
     
     #interaction matrix entered by the user
@@ -70,8 +72,10 @@ find_exact_structures <-
       interaction_matrix,
       all_proteins_permut_values
     )
+    # browser()
     
-    if ("not possible" %in% tmp_user_node_related[[1]] | length(tmp_user_node_related[[1]])==0) {
+    if ("not possible" %in% tmp_user_node_related[[1]] |
+        length(tmp_user_node_related[[1]]) == 0) {
       return(list("not possible"))
     } else{
       # potential links between user nodes and the other
@@ -80,16 +84,29 @@ find_exact_structures <-
       main_table <- tmp_user_node_related
     }
     
+<<<<<<< HEAD
     # browser()
     main_table <- main_table[!apply(main_table,1,function(x) any(duplicated(x))),]
     main_table <- main_table[,sort(names(main_table))]
+=======
+    main_table <-
+      main_table[!apply(main_table, 1, function(x)
+        any(duplicated(x))), ]
+    main_table <- main_table[, sort(names(main_table))]
+    
+    if (nrow(main_table) == 0) {
+      return(list("not possible"))
+    }
+
+    
+    ##############################################################################
+    #################### starting to search among the non user node interactions
+>>>>>>> 85096fd (Initial upload)
     
     ####### In this step we should find potential proteins for nodes that do not have interaction with
     ####### the user node. Here we pick these nodes one by one and find potential proteins
     ####### based on the proteins that we found in the previous step
     
-    
-    #################### starting to search among the non user node interactions
     
     tmp_non_user_output <-
       non_user_interacting_nodes_potential_proteins(
@@ -101,18 +118,24 @@ find_exact_structures <-
         network_proteins
       )
     
-    if ("not possible" %in% tmp_non_user_output[[1]]| length(tmp_user_node_related[[1]])==0) {
+    if ("not possible" %in% tmp_non_user_output[[1]] |
+        length(tmp_user_node_related[[1]]) == 0) {
       return(list("not possible"))
     } else{
       main_table <- tmp_non_user_output
       
     }
-    main_table <- main_table[!apply(main_table,1,function(x) any(duplicated(x))),]
-    main_table <- main_table[,sort(names(main_table))]
+    main_table <-
+      main_table[!apply(main_table, 1, function(x)
+        any(duplicated(x))), ]
+    main_table <- main_table[, sort(names(main_table))]
     # browser()
-    # 
+    #
+    
+    
     ############### now we need to look at the links again and refine them if
     ############### any protein has been removed from the potential links
+    
     
     print("step 2 done: Non interacting nodes")
     
@@ -132,41 +155,78 @@ find_exact_structures <-
     ######### the unique number of nodes are equal to the node numbers
     ######### if less it means one protein is used in more than one place and if more
     ######### it means one potential node is wrong
-    print("step 3 done: recheck")
+    # print("step 3 done: recheck")
+    
+    
+    ######## remove the redundant rows in all_proteins_permut_proteins to reduce the memory usage
+    
+    
+    tmp <- as.data.frame(all_proteins_permut_values[, c(1, 2)])
+    
+    node_index_final <- combn(node_range, 2)
+    index <- NULL
+    
+    for (tmp_colname in 1:ncol(node_index_final)) {
+      index1 <- c()
+      index2 <- NULL
+      
+      w <- node_index_final[1, tmp_colname]
+      s <- node_index_final[2, tmp_colname]
+      
+      if (interaction_matrix[w, s] != 0) {
+        index1 <-
+          row.match(unique(main_table[, c(w, s)]), tmp)
+        
+      }
+      
+      if (interaction_matrix[s, w] != 0) {
+        index2 <- row.match(unique(main_table[c(s, w)]), tmp)
+      }
+      
+      index <- unique(c(index, index1, index2))
+    }
+    rm(tmp)
+    # browser()
     
     
     
+    
+    all_proteins_permut_proteins <-
+      all_proteins_permut_proteins[index,]
+    all_proteins_permut_values <-
+      all_proteins_permut_values[index,]
+    
+    
+    # save(list = ls(all.names = TRUE), file = "environment.RData")
+    
+    
+    ###########################################################################
     ############ check if the connection between two nodes is not passed
     ############ through the other nodes
-
-
     
-    bad_rows <-
+    # load("environment.RData")
+    
+    
+    
+    main_table <-
       unique_nodes_interactions(
         main_table,
         node_range,
         network_proteins,
-        num_nodes,
         interaction_matrix,
         all_proteins_permut_proteins,
         all_proteins_permut_values
       )
+    print("step 3 done: Finding bad rows")
     # browser()
-    print("step 4 done: Finding bad rows")
+    proteins_table_final <-
+      as.data.frame(apply(main_table, 2, function(x)
+        network_proteins[x]))
     
-    proteins_table_final<-as.data.frame(apply(main_table,2,function(x) network_proteins[x]))
-    
-    if (!(is.null(bad_rows))) {
-      proteins_table_final <-
-        proteins_table_final[-unique(bad_rows),]
       # browser()
       if (nrow(proteins_table_final) == 0) {
         return("Not possible")
-      }else{
-        rownames(proteins_table_final) <-
-          1:nrow(proteins_table_final)
-      }
-    }
+          }
     # browser()
     
     return(as.data.frame(proteins_table_final))

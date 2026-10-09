@@ -19,6 +19,7 @@ user_interacting_nodes_potential_proteins <-
         
         # finding the nodes that are regulated by the user node
         if (interaction_matrix[s, w] != 0) {
+          
           # find proteins in the table that contains all combination of proteins interaction (all_proteins_permut)
           # to find possible proteins that are regulated by node S in a way that is determined by user (in interaction_matrix)
           # browser()
@@ -26,29 +27,38 @@ user_interacting_nodes_potential_proteins <-
           
           tmp_all_proteins_permut1 <-
             all_proteins_permut_values[which(all_proteins_permut_values[, 1] ==  potential_nodes[[as.character(s)]]), ]
+          
           # browser()
           new_potential_nodes <- list()
-          new_potential_nodes <-
-            foreach::foreach(kk = 1:nrow(tmp_all_proteins_permut1),
-                             .combine = "rbind") %dopar% {
-                               tmp <- NULL
-                               # for (kk in 1:nrow(tmp_all_proteins_permut1)) {
-                                 if (all(interaction_matrix[s, w] %in% unlist(tmp_all_proteins_permut1[kk, 3]))) {
-                                   # new_potential_nodes[[length(new_potential_nodes) + 1]]
-                                   tmp <-
-                                     unlist(tmp_all_proteins_permut1[kk, 2])
-                                   
-                                 }
-                                 tmp
-                               
-                             }
+          
+          if (interaction_matrix[s, w]==1){
+            new_potential_nodes <- tmp_all_proteins_permut1 [tmp_all_proteins_permut1[, 4]!=0,2]
+          }else{
+            new_potential_nodes <- tmp_all_proteins_permut1 [tmp_all_proteins_permut1[, 5]!=0,2]
+            
+          }
+          
+          # new_potential_nodes <-
+          #   foreach::foreach(kk = 1:nrow(tmp_all_proteins_permut1),
+          #                    .combine = "rbind") %dopar% {
+          #                      tmp <- NULL
+          #                      # for (kk in 1:nrow(tmp_all_proteins_permut1)) {
+          #                        if (all(interaction_matrix[s, w] %in% unlist(tmp_all_proteins_permut1[kk, 3]))) {
+          #                          # new_potential_nodes[[length(new_potential_nodes) + 1]]
+          #                          tmp <-
+          #                            unlist(tmp_all_proteins_permut1[1, 2])
+          #                          
+          #                        }
+          #                        tmp
+          #                      
+          #                    }
           
           # check if the chosen interaction by user is not among the network interactions
           # if not then terminate the search
           
           tmp_cond1 <-
             intersect(potential_nodes[[as.character(w)]], unlist(new_potential_nodes))
-          
+          # browser()
           if (length(tmp_cond1) == 0) {
             # browser()
             return(list("not possible"))
@@ -81,28 +91,33 @@ user_interacting_nodes_potential_proteins <-
           tmp_all_proteins_permut <-
             all_proteins_permut_values[which(all_proteins_permut_values[, 2] ==  potential_nodes[[as.character(s)]]), ]
           
-          new_potential_nodes2 <- list()
+          if (interaction_matrix[w,s]==1){
+            new_potential_nodes2 <- tmp_all_proteins_permut [tmp_all_proteins_permut[, 4]!=0,1]
+          }else{
+            new_potential_nodes2 <- tmp_all_proteins_permut [tmp_all_proteins_permut[, 5]!=0,1]
+            
+          }
           
-          new_potential_nodes2 <-
-            foreach::foreach(kk = 1:nrow(tmp_all_proteins_permut),
-                             .combine = "rbind") %dopar% {
-                               tmp <- NULL
-                               
-                               # for (kk in 1:nrow(tmp_all_proteins_permut)) {
-                               if (all(interaction_matrix[w, s] %in% unlist(tmp_all_proteins_permut[kk, 3]))) {
-                                 # browser()
-                                 
-                                 # new_potential_nodes2[[length(new_potential_nodes2) + 1]] <-
-                                 tmp <-
-                                   unlist(tmp_all_proteins_permut[kk, 1])
-                                 
-                               }
-                               tmp
-                             }
+          # new_potential_nodes2 <-
+          #   foreach::foreach(kk = 1:nrow(tmp_all_proteins_permut),
+          #                    .combine = "rbind") %dopar% {
+          #                      tmp <- NULL
+          #                      
+          #                      # for (kk in 1:nrow(tmp_all_proteins_permut)) {
+          #                      if (all(interaction_matrix[w, s] %in% unlist(tmp_all_proteins_permut[kk, 3]))) {
+          #                        # browser()
+          #                        
+          #                        # new_potential_nodes2[[length(new_potential_nodes2) + 1]] <-
+          #                        tmp <-
+          #                          unlist(tmp_all_proteins_permut[kk, 1])
+          #                        
+          #                      }
+          #                      tmp
+          #                    }
           
           tmp_cond <-
             intersect(potential_nodes[[as.character(w)]], unlist(new_potential_nodes2))
-          
+          # browser()
           if (length(tmp_cond) == 0) {
             # browser()
             return(list("not possible"))

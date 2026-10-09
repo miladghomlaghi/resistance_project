@@ -2,12 +2,14 @@
 
 
 get_link_topology_extract <- function(network, nodeA, nodeB, links_frame, full = T) {
-  source("./data/functions/F19_calculate_path_value.R")
   
+  library(nycflights13)
+  library(yenpathy)
   tmp_path <- list()
+  
   if (nodeA != nodeB) {
-    tmp_path <- igraph::all_simple_paths(network, nodeA, nodeB)
     
+    tmp_path <-k_shortest_paths(links_frame,from=nodeA,to=nodeB, k = 10)
     path_proteins <- list()
     path_value <- list()
     soring<-list()
@@ -19,7 +21,9 @@ get_link_topology_extract <- function(network, nodeA, nodeB, links_frame, full =
     } else{
       
       for (i in 1:length(tmp_path)) {
-        tmp_path_2 <- names(unlist(tmp_path[[i]]))
+        # tmp_path_2 <- names(unlist(tmp_path[[i]]))
+        tmp_path_2 <- tmp_path[[i]]
+        
         soring[[i]] <- length(tmp_path_2)
         path_proteins[[i]] <- tmp_path_2
         
@@ -29,13 +33,15 @@ get_link_topology_extract <- function(network, nodeA, nodeB, links_frame, full =
       }
       # browser()
       
+      path_proteins<-path_proteins[soring<7]
+      soring <- soring[soring<7]
       
       
-      length(path_proteins)
-      
-      
-      
-      return(c(list(path_value[order(unlist(soring))]), list(path_proteins[order(unlist(soring))])))
+      if (length(soring)!=0){
+        return(c(list(path_value[order(unlist(soring))]), list(path_proteins[order(unlist(soring))])))
+      }else{
+        return(NULL)
+      }
     }
   }
 }

@@ -1,0 +1,13 @@
+
+#source("./R/Functions/F01_merge_matching_data.R")
+source("./R/Functions/F04_get_combinations.R")
+source("./R/Functions/F05_get_subnetwork.R")
+source("./R/Functions/F06_get_subnetwork_size.R")
+source("./R/Functions/F07_plot_subnet.R")
+source("./R/Functions/F08_plot_subnet2.R")
+source("./R/Functions/F09_plot_subnet3.R")
+source("./R/Functions/F10_get_simplified_topology.R")
+source("./R/Functions/F11_plot_simplified_topology.R")
+source("./R/Functions/F12_plot_freq_match.R")
+source("./R/Functions/F13_plot_binary_topology.R")
+source("./R/Functions/F14_plot_bar_replicates.R")

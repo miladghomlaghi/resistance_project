@@ -17,7 +17,6 @@ User_interacting_node_protein_finder <-
     # as a start, each node without connection with the users nodes takes all
     #the possible proteins in the network as potential candidates
     for (i in 1:length(user_node_position)) {
-      # browser()
       potential_nodes[[as.character(user_node_position[[i]])]] <-
         user_protein_number[[i]]
     }
@@ -30,6 +29,7 @@ User_interacting_node_protein_finder <-
     
     ## creating an initial main table
     main_table <- making_main_interaction_table_initial(interaction_matrix,potential_nodes,node_range,user_node_position)   
+    # browser()
     
     
     if (length(user_node_position) > 1) {
